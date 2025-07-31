@@ -1,9 +1,15 @@
 server:
   port: 8080
+  ssl:
+    enabled: true
+    key-store-type: PKCS12
+    key-store: classpath:certs/bankcards.p12
+    key-store-password: fpavel
+    key-alias: bankcards
 
 spring:
   application:
-    name: Bank_REST
+    name: bankcards
   datasource:
     url: jdbc:postgresql://localhost:5432/bankcards
     username: bankcards_admin
@@ -30,4 +36,3 @@ logging:
 #
 #Что нужно сделать:
 #  - Настроить параметры безопасности и JWT.
-#  - Включить Swagger UI.
