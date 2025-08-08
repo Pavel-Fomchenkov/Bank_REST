@@ -6,6 +6,8 @@ server:
     key-store: classpath:certs/bankcards.p12
     key-store-password: fpavel
     key-alias: bankcards
+jwt:
+  secret: секретный_ключ_длиной_не_менее_44_символов_приблизительно_32_байта
 
 spring:
   application:
@@ -32,7 +34,3 @@ springdoc:
 logging:
   level:
     root: INFO
-
-#
-#Что нужно сделать:
-#  - Настроить параметры безопасности и JWT.
