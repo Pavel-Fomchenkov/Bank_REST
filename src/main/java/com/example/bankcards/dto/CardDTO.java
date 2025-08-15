@@ -1,35 +1,22 @@
-package com.example.bankcards.entity;
+package com.example.bankcards.dto;
 
+import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.entity.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Entity
-@Table(name = "cards")
-@Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Card {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+@Data
+public class CardDTO {
     private Long id;
 
-    @Column(name = "description")
     private String description;
 
-    @Column(name = "number_encrypted")
-    private String numberEncrypted;
-
-    @Column(name = "number_masked")
     private String numberMasked;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User owner;
+    private UserDTO owner;
 
     @Column(name = "entry_date")
     private Instant entryDate;
@@ -46,4 +33,6 @@ public class Card {
 
     @Column(name = "balance")
     private BigDecimal balance;
+
+
 }

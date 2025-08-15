@@ -37,15 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         logger.info("Запущен метод doFilterInternal из JwtAuthenticationFilter");
-// TODO программа создает токен для любого пользователя имя которого имеется в базе,
-//  причем при последующей отправке запросов пароль не сверяется
-//  Нужно сделать так, чтобы при неправильном пароле не генерировался токен,
-//  а также при получении токена из swagger нужно проверять правильность пароля
-
-        // TODO получается метод doFilterInternal должен проверять валидность подписи токена,
-        //  а метод SignIn должен проверять правильность пароля и создавать этот самый токен,
-        //  тогда передача пароля будет происходить один раз, также как и его проверка
-        //  Не проверяется соответствие хэша пароля из userDetails и пароля из sign-in request
 
         final String authHeader = request.getHeader("Authorization");
         if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {

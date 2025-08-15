@@ -22,3 +22,20 @@ CREATE TABLE IF NOT EXISTS public.cards
      status character varying(32) NOT NULL,
      balance NUMERIC(19, 2) NOT NULL
 );
+
+-- changeset fpavel:2
+ALTER TABLE public.cards ADD COLUMN
+    credit_limit NUMERIC(19, 2) NOT NULL DEFAULT 0.00;
+
+
+-- changeset fpavel:3
+CREATE TABLE IF NOT EXISTS public.transactions
+(
+  id BIGSERIAL PRIMARY KEY,
+  from_card_id BIGINT NOT NULL,
+  to_card_id BIGINT NOT NULL,
+  amount NUMERIC(19, 2) NOT NULL,
+  initiator_id BIGINT NOT NULL,
+  transaction_date timestamp with time zone NOT NULL,
+  status character varying(32) NOT NULL
+);

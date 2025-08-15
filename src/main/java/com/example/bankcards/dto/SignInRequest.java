@@ -15,5 +15,6 @@ public class SignInRequest {
 
     @Schema(description = "Пароль", example = "AbcdaBCD_094")
     @Size(min = 8, max = 255, message = "Длина пароля должна быть от 8 до 255 символов")
+    @NotBlank(message = "Пароль не может быть пустым")
     private String password;
 }
