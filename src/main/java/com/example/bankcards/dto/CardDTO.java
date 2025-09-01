@@ -1,7 +1,6 @@
 package com.example.bankcards.dto;
 
-import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.User;
+import com.example.bankcards.entity.Card;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,13 +25,13 @@ public class CardDTO {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private CardStatus status;
+    private Card.Status status;
 
     @Column(name = "creditLimit")
-    private BigDecimal creditLimit;
+    private String creditLimit;
 
     @Column(name = "balance")
-    private BigDecimal balance;
+    private String balance;
 
 
 }

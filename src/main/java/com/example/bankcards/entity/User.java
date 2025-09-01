@@ -48,4 +48,9 @@ public class User {
                 ", cards=" + cards +
                 '}';
     }
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.dto.SignUpRequest;
-import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.exception.UsernameAlreadyExistsException;
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService {
         return repository.save(User.builder()
                 .username(request.getUsername())
                 .passwordEncrypted(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(User.Role.USER)
                 .entryDate(Instant.now())
                 .build()
         );
@@ -85,4 +84,5 @@ public class UserServiceImpl implements UserService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByUsername(username);
     }
+
 }

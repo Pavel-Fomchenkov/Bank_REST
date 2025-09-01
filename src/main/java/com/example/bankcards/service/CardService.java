@@ -3,11 +3,15 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.CardCreateDTO;
 import com.example.bankcards.entity.Card;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface CardService {
 
     Card create(long ownerId, CardCreateDTO cardCreateDTO);
+
+    Card createServiceCard(String description);
 
     boolean blockCard(long cardId);
 
@@ -26,6 +30,8 @@ public interface CardService {
     Card getById(Long id);
 
     int expireCards();
+
+    boolean executeTransaction(Long fromCardId, Long toCardId, BigDecimal amount);
 }
 //        • Администратор:
 //    • Видит все карты

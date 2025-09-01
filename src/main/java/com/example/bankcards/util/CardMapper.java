@@ -18,5 +18,7 @@ public abstract class CardMapper {
     @Named("mapToCardDTO")
     @Mapping(target = "owner", expression = "java(userMapper.mapToUserDTO(card.getOwner()))")
     @Mapping(target = "numberMasked", expression = "java(MASK + card.getNumberMasked())")
+    @Mapping(target = "creditLimit", expression = "java(card.getCreditLimit().toString())")
+    @Mapping(target = "balance", expression = "java(card.getBalance().toString())")
     public abstract CardDTO mapToCardDTO(Card card);
 }

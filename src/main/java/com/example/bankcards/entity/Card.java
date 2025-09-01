@@ -18,6 +18,7 @@ public class Card {
     @Column(name = "id")
     private Long id;
 
+    @Setter
     @Column(name = "description")
     private String description;
 
@@ -34,16 +35,27 @@ public class Card {
     @Column(name = "entry_date")
     private Instant entryDate;
 
+    @Setter
     @Column(name = "expiration_date")
     private Instant expirationDate;
 
+    @Setter
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private CardStatus status;
+    private Status status;
 
+    @Setter
     @Column(name = "creditLimit")
     private BigDecimal creditLimit;
 
+    @Setter
     @Column(name = "balance")
     private BigDecimal balance;
+
+    public enum Status {
+        ACTIVE,
+        BLOCKED,
+        EXPIRED
+    }
+
 }

@@ -42,6 +42,13 @@ public class CardController {
         return ResponseEntity.ok(mapper.mapToCardDTO(newCard));
     }
 
+    @PostMapping("/service")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CardDTO> createServiceCard(@RequestParam(name = "description") String description) {
+        Card newCard = cardService.createServiceCard(description);
+        return ResponseEntity.ok(mapper.mapToCardDTO(newCard));
+    }
+
     @PatchMapping("/block")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Boolean> blockCard(@RequestParam(name = "cardId") long cardId) {
@@ -53,5 +60,6 @@ public class CardController {
     public ResponseEntity<Boolean> activateCard(@RequestParam(name = "cardId") long cardId) {
         return ResponseEntity.ok(cardService.activateCard(cardId));
     }
+
 
 }

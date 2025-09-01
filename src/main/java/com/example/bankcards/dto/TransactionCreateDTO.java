@@ -19,4 +19,7 @@ public class TransactionCreateDTO {
     @NotBlank(message = "Положительное число, максимум 2 знака после запятой")
     @Positive
     private BigDecimal sum;
+    @Schema(description = "Назначение платежа")
+    @NotBlank(message = "Описание транзакции")
+    private String description;
 }

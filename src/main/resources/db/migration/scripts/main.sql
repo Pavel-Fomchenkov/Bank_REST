@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS public.cards
 ALTER TABLE public.cards ADD COLUMN
     credit_limit NUMERIC(19, 2) NOT NULL DEFAULT 0.00;
 
-
 -- changeset fpavel:3
 CREATE TABLE IF NOT EXISTS public.transactions
 (
@@ -39,3 +38,7 @@ CREATE TABLE IF NOT EXISTS public.transactions
   transaction_date timestamp with time zone NOT NULL,
   status character varying(32) NOT NULL
 );
+
+-- changeset fpavel:4
+ALTER TABLE public.transactions ADD COLUMN
+     description character varying(255) NOT NULL;
