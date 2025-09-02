@@ -2,10 +2,11 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardCreateDTO;
 import com.example.bankcards.entity.Card;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 public interface CardService {
 
@@ -19,11 +20,11 @@ public interface CardService {
 
     void deleteCard(long cardId);
 
-    List<Card> getAll(String username);
+    Page<Card> getAll(Pageable pageable);
 
-    List<Card> getByStatus(String username);
+    Page<Card> getByStatus(Card.Status status, Pageable pageable);
 
-    List<Card> getByUsername(String username);
+    Page<Card> getByUsername(String username, Pageable pageable);
 
     List<Card> getByUsernamePart(String usernamePart);
 

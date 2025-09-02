@@ -27,6 +27,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    // TODO настроить фильтр
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Запущен метод securityFilterChain из SecurityConfig");
@@ -40,7 +42,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/card").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.GET, "/card/two").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/card/status").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout  // TODO проверить logout и нужен ли он вообще?

@@ -6,9 +6,13 @@ import com.example.bankcards.entity.Card;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.util.CardMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,22 +21,39 @@ public class CardController {
     private final CardMapper mapper;
     private final CardService cardService;
 
-    @GetMapping
-    public ResponseEntity<String> getFirst() {
-        System.out.println("first");
-        return ResponseEntity.ok("first");
+    @GetMapping(value = "/all", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<CardDTO>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
+                                                @RequestParam(defaultValue = "10") int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return ResponseEntity.ok(cardService.getAll(pageable).stream()
+                .map(mapper::mapToCardDTO).toList());
     }
 
-    @GetMapping("/two")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> getSecond() {
-        return ResponseEntity.ok("second");
-    }
 
     @GetMapping(value = "/{id}", produces = {"application/json"})
     public ResponseEntity<CardDTO> getById(@PathVariable long id) {
         Card card = cardService.getById(id);
         return ResponseEntity.ok(mapper.mapToCardDTO(card));
+    }
+
+    @GetMapping(value = "/name", produces = {"application/json"})
+    public ResponseEntity<List<CardDTO>> getByUsername(@RequestParam(name = "name") String name,
+                                                       @RequestParam(defaultValue = "0") int pageNumber,
+                                                       @RequestParam(defaultValue = "10") int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return ResponseEntity.ok(cardService.getByUsername(name, pageable).stream()
+                .map(mapper::mapToCardDTO).toList());
+    }
+
+    @GetMapping(value = "/status", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<CardDTO>> getByStatus(@RequestParam(name = "status") Card.Status status,
+                                                     @RequestParam(defaultValue = "0") int pageNumber,
+                                                     @RequestParam(defaultValue = "10") int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return ResponseEntity.ok(cardService.getByStatus(status, pageable).stream()
+                .map(mapper::mapToCardDTO).toList());
     }
 
     @PostMapping("/create/{ownerId}")

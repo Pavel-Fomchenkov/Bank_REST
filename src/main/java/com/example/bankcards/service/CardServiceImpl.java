@@ -3,12 +3,15 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.CardCreateDTO;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.User;
+import com.example.bankcards.exception.InactiveCardException;
 import com.example.bankcards.exception.InsufficientFundsException;
 import com.example.bankcards.repository.CardRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import lombok.RequiredArgsConstructor;
@@ -68,8 +71,7 @@ public class CardServiceImpl implements CardService {
                 .build());
     }
 
-    // TODO нужно учитывать, что карта может быть EXPIRED и не проводить операции,
-    //  а также нужно сделать метод продления карты
+    // TODO нужно сделать метод продления карты
 
     @Override
     @Transactional
@@ -89,18 +91,28 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public List<Card> getAll(String username) {
-        return List.of();
+    public Page<Card> getAll(Pageable pageable) {
+        if(userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
+            return repository.findAll(pageable);
+        }
+        return Page.empty();
     }
 
     @Override
-    public List<Card> getByStatus(String username) {
-        return List.of();
+    public Page<Card> getByStatus(Card.Status status, Pageable pageable) {
+        if(userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
+            return repository.findByStatus(status, pageable);
+        }
+        return Page.empty();
     }
 
     @Override
-    public List<Card> getByUsername(String username) {
-        return List.of();
+    public Page<Card> getByUsername(String username, Pageable pageable) {
+        User currentUser = userService.getCurrentUser();
+        if(currentUser.getUsername().equals(username) || currentUser.getRole().equals(User.Role.ADMIN)) {
+            return repository.findByOwnerUsername(username, pageable);
+        }
+        return Page.empty();
     }
 
     @Override
@@ -148,7 +160,6 @@ public class CardServiceImpl implements CardService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public boolean executeTransaction(Long fromCardId, Long toCardId, BigDecimal amount) {
         logger.info("Запущен метод executeTransaction из CardService");
-        boolean result = false;
         User currentUser = userService.getCurrentUser();
 
         if (amount.compareTo(BigDecimal.ZERO) < 0 && !currentUser.getRole().equals(User.Role.ADMIN)) {
@@ -158,6 +169,10 @@ public class CardServiceImpl implements CardService {
         Card fromCard = entityManager.find(Card.class, fromCardId, LockModeType.PESSIMISTIC_WRITE);
         Card toCard = entityManager.find(Card.class, toCardId, LockModeType.PESSIMISTIC_WRITE);
 
+        if (!fromCard.getStatus().equals(Card.Status.ACTIVE) || !toCard.getStatus().equals(Card.Status.ACTIVE)){
+            throw new InactiveCardException("Операция с устаревшей или заблокированной картой");
+        }
+
         if (amount.compareTo(BigDecimal.ZERO) > 0 &&
                 fromCard.getBalance().add(fromCard.getCreditLimit()).compareTo(amount) < 0) {
             throw new InsufficientFundsException("Недостаточно средств");
@@ -166,30 +181,28 @@ public class CardServiceImpl implements CardService {
             throw new InsufficientFundsException("Недостаточно средств");
         }
 
-        fromCard.setBalance(fromCard.getBalance().subtract(amount));
-        toCard.setBalance(toCard.getBalance().add(amount));
-        entityManager.persist(fromCard);
-        entityManager.persist(toCard);
-        return true;
+        if (currentUser.getRole().equals(User.Role.ADMIN) || fromCard.getOwner().equals(currentUser)) {
+            fromCard.setBalance(fromCard.getBalance().subtract(amount));
+            toCard.setBalance(toCard.getBalance().add(amount));
+            entityManager.persist(fromCard);
+            entityManager.persist(toCard);
+            return true;
+        }
+        return false;
     }
 }
 
 
 // TODO тут должны быть методы:
-//  - создание карты с нулевым балансом
+//  + создание карты с нулевым балансом
 //  - получение информации о карте
 //  - изменение реквизитов карты (наверное, разрешить менять только описание и дату истечения срока карты)
 //  - блокировки карты
 //  - разблокировки карты
 //  - удаления карты (только при отсутствии денежных операций по ней)
-//  Как организовать проведение транзакций по карте?
-//  Хранить операции по изменению статуса карты вместе с переводами?
-//  Создать отдельную сущность в которой будут храниться изменения по карте?
 //  Хранить все изменения по карте, включая создание и изменение параметров?
-//  Тогда как хранить операции (денежные отдельно от неденежных?)
 //  Зачем нужна таблица с картами, если карту можно воссоздать по операциям?
 //  Может лучше хранить операции и по составному ключу (cardId и operationId) получать последнее состояние карты?
 //  Как организовать транзакции? Может ли пользователь уйти в минус?
-//  Может надо сделать транзакции в виде двойной записи (Дт и Кт)
 
 

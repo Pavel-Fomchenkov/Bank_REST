@@ -42,3 +42,19 @@ CREATE TABLE IF NOT EXISTS public.transactions
 -- changeset fpavel:4
 ALTER TABLE public.transactions ADD COLUMN
      description character varying(255) NOT NULL;
+
+-- changeset fpavel:5
+CREATE TABLE IF NOT EXISTS public.user_requests
+(
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  card_id BIGINT NOT NULL,
+  entry_date timestamp with time zone NOT NULL,
+  result_date timestamp with time zone,
+  type character varying(32) NOT NULL,
+  result character varying(32),
+  comments character varying(100) NOT NULL,
+  executor_id BIGINT,
+  result_comments character varying(100)
+);
+
