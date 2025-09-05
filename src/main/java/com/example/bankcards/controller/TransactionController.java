@@ -17,7 +17,7 @@ public class TransactionController {
     private final TransactionMapper mapper;
     private final TransactionService service;
 
-    @PostMapping("/putMoney")
+    @PostMapping()
     public ResponseEntity<TransactionDTO> makeTransaction(TransactionDTO transactionDTO) {
         return ResponseEntity.ok(mapper.mapToTransactionDTO(service.makeTransaction(transactionDTO)));
     }

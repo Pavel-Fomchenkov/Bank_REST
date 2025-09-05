@@ -30,7 +30,15 @@ public interface CardService {
 
     Card getById(Long id);
 
+    /**
+     * Устанавливает статус {@link Card.Status#EXPIRED EXPIRED} для всех карт у которых прошла {@link Card expirationDate}
+     * @return количество скорректированных карт
+     */
     int expireCards();
+
+    boolean expireCard(Long id);
+
+    Card prolongCard(Long id, int days);
 
     boolean executeTransaction(Long fromCardId, Long toCardId, BigDecimal amount);
 }

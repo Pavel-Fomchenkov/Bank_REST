@@ -1,25 +1,26 @@
 package com.example.bankcards.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "user_requests")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Getter
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User initiator;
 
-    @Getter
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
@@ -38,7 +39,7 @@ public class UserRequest {
 
     @Setter
     @Enumerated(EnumType.STRING)
-    @Column(name = "result", nullable = false)
+    @Column(name = "result", nullable = true)
     private Result result;
 
     @Setter
@@ -46,10 +47,9 @@ public class UserRequest {
     private String comment;
 
     @Getter
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "executor_id", nullable = true)
     private User executor;
-
 
     @Column(name = "result_comments", nullable = true)
     private String resultComment;

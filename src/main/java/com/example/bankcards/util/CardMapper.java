@@ -1,9 +1,7 @@
 package com.example.bankcards.util;
 
 import com.example.bankcards.dto.CardDTO;
-import com.example.bankcards.dto.UserDTO;
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

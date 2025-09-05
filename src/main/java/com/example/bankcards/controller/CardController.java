@@ -82,5 +82,17 @@ public class CardController {
         return ResponseEntity.ok(cardService.activateCard(cardId));
     }
 
+    @PatchMapping("/expire")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Boolean> expireCard(@RequestParam(name = "cardId") long cardId) {
+        return ResponseEntity.ok(cardService.expireCard(cardId));
+    }
+
+    @PatchMapping("/prolong")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CardDTO> prolongCard(@RequestParam(name = "cardId") long cardId,
+                                               @RequestParam(name = "days") int days) {
+        return ResponseEntity.ok(mapper.mapToCardDTO(cardService.prolongCard(cardId, days)));
+    }
 
 }

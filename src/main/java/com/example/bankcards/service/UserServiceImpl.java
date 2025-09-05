@@ -2,8 +2,8 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.SignUpRequest;
 import com.example.bankcards.entity.User;
+import com.example.bankcards.exception.AlreadyExistsException;
 import com.example.bankcards.exception.UserNotFoundException;
-import com.example.bankcards.exception.UsernameAlreadyExistsException;
 import com.example.bankcards.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
         logger.info("Запущен метод create из UserService");
         if (repository.existsByUsername(request.getUsername())) {
             logger.error("Пользователь {} уже существует", request.getUsername());
-            throw new UsernameAlreadyExistsException("Пользователь " + request.getUsername() + " уже существует");
+            throw new AlreadyExistsException("Пользователь " + request.getUsername() + " уже существует");
         }
         return repository.save(User.builder()
                 .username(request.getUsername())

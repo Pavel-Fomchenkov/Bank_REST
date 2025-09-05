@@ -10,8 +10,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +41,16 @@ public class CardServiceImpl implements CardService {
     @PersistenceContext
     private EntityManager entityManager;
 
+
+    /**
+     * Запускается при старте приложения.
+     * Устанавливает статус {@link Card.Status#EXPIRED EXPIRED} для всех карт у которых прошла {@link Card expirationDate}
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady(ApplicationReadyEvent event) {
+        logger.info("Выполняем expireCards при старте приложения");
+        expireCards();
+    }
 
     @Override
     public Card create(long ownerId, CardCreateDTO cardCreateDTO) {
@@ -71,8 +85,6 @@ public class CardServiceImpl implements CardService {
                 .build());
     }
 
-    // TODO нужно сделать метод продления карты
-
     @Override
     @Transactional
     public boolean blockCard(long cardId) {
@@ -87,12 +99,13 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public void deleteCard(long cardId) {
+// удалять карту если по ней не было операций
 
     }
 
     @Override
     public Page<Card> getAll(Pageable pageable) {
-        if(userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
+        if (userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
             return repository.findAll(pageable);
         }
         return Page.empty();
@@ -100,7 +113,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public Page<Card> getByStatus(Card.Status status, Pageable pageable) {
-        if(userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
+        if (userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
             return repository.findByStatus(status, pageable);
         }
         return Page.empty();
@@ -109,7 +122,7 @@ public class CardServiceImpl implements CardService {
     @Override
     public Page<Card> getByUsername(String username, Pageable pageable) {
         User currentUser = userService.getCurrentUser();
-        if(currentUser.getUsername().equals(username) || currentUser.getRole().equals(User.Role.ADMIN)) {
+        if (currentUser.getUsername().equals(username) || currentUser.getRole().equals(User.Role.ADMIN)) {
             return repository.findByOwnerUsername(username, pageable);
         }
         return Page.empty();
@@ -127,8 +140,50 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
     public int expireCards() {
-        return 0;
+        logger.info("Запущен метод expireCards из CardService");
+        int count = repository.expireCards(Card.Status.EXPIRED, Card.Status.EXPIRED);
+        logger.info("{} карте(ам) установлен статус EXPIRED", count);
+        return count;
+    }
+
+    @Override
+    @Transactional
+    public boolean expireCard(Long id) {
+        logger.info("Запущен метод expireCard из CardService");
+        User currentUser = userService.getCurrentUser();
+        Card cardFromBD = getById(id);
+        if (currentUser.getRole().equals(User.Role.ADMIN)) {
+            throw new AccessDeniedException("Доступ запрещен");
+        }
+        if (cardFromBD.getStatus() != Card.Status.EXPIRED) {
+            cardFromBD.setStatus(Card.Status.EXPIRED);
+            cardFromBD.setExpirationDate(Instant.now());
+            repository.save(cardFromBD);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public Card prolongCard(Long id, int days) {
+        logger.info("Запущен метод prolongCard из CardService");
+        User currentUser = userService.getCurrentUser();
+        Card cardFromBD = getById(id);
+        if (currentUser.getRole().equals(User.Role.ADMIN)) {
+            throw new AccessDeniedException("Доступ запрещен");
+        }
+        LocalDateTime localDateTime = cardFromBD.getExpirationDate().atOffset(ZoneOffset.UTC).toLocalDateTime();
+        localDateTime = localDateTime.plusDays(days);
+        Instant newInstant = localDateTime.toInstant(ZoneOffset.UTC);
+        cardFromBD.setExpirationDate(newInstant);
+        if (cardFromBD.getStatus().equals(Card.Status.EXPIRED) && cardFromBD.getExpirationDate().isAfter(Instant.now())) {
+            cardFromBD.setStatus(Card.Status.ACTIVE);
+        }
+        return repository.save(cardFromBD);
     }
 
     private static Instant calculateExpiration() {
@@ -155,7 +210,6 @@ public class CardServiceImpl implements CardService {
         return noSpacesNumber.substring(noSpacesNumber.length() - 4);
     }
 
-    // TODO сделать корректный отлов исключений
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public boolean executeTransaction(Long fromCardId, Long toCardId, BigDecimal amount) {
@@ -169,7 +223,7 @@ public class CardServiceImpl implements CardService {
         Card fromCard = entityManager.find(Card.class, fromCardId, LockModeType.PESSIMISTIC_WRITE);
         Card toCard = entityManager.find(Card.class, toCardId, LockModeType.PESSIMISTIC_WRITE);
 
-        if (!fromCard.getStatus().equals(Card.Status.ACTIVE) || !toCard.getStatus().equals(Card.Status.ACTIVE)){
+        if (!fromCard.getStatus().equals(Card.Status.ACTIVE) || !toCard.getStatus().equals(Card.Status.ACTIVE)) {
             throw new InactiveCardException("Операция с устаревшей или заблокированной картой");
         }
 

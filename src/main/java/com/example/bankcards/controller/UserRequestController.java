@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -30,6 +31,7 @@ public class UserRequestController {
     }
 
     @GetMapping(value = "/all", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UserRequestDTO>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                                        @RequestParam(defaultValue = "10") int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -38,6 +40,7 @@ public class UserRequestController {
     }
 
     @GetMapping(value = "/{id}", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserRequestAdditionalDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(mapper.mapToUserRequestAdditionalDTO(service.getById(id)));
     }
@@ -61,6 +64,7 @@ public class UserRequestController {
     }
 
     @PatchMapping(value = "/execute", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserRequestAdditionalDTO> executeRequest(UserRequestDTO requestDTO, UserRequest.Result result) {
         return ResponseEntity.ok(mapper.mapToUserRequestAdditionalDTO(service.executeRequest(requestDTO, result)));
     }

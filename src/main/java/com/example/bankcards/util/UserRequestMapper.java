@@ -12,14 +12,14 @@ import org.mapstruct.Named;
 public interface UserRequestMapper {
 
     @Named("mapToUserRequestDTO")
-    @Mapping(target = "initiatorId", expression = "java(userRequest.getInitiator().getId())")
-    @Mapping(target = "cardId", expression = "java(userRequest.getCard().getId())")
-    @Mapping(target = "executorId", expression = "java(userRequest.getExecutor().getId())")
+    @Mapping(target = "initiatorId", source = "initiator.id")
+    @Mapping(target = "cardId", source = "card.id")
+    @Mapping(target = "executorId", expression = "java(userRequest.getExecutor() != null ? userRequest.getExecutor().getId() : null)")
     UserRequestDTO mapToUserRequestDTO(UserRequest userRequest);
 
     @Named(("mapToUserRequestAdditionalDTO"))
     @Mapping(target = "initiator", expression = "java(UserMapper.INSTANCE.mapToUserDTO(userRequest.getInitiator()))")
     @Mapping(target = "card", expression = "java(CardMapper.INSTANCE.mapToCardDTO(userRequest.getCard()))")
-    @Mapping(target = "executor", expression = "java(UserMapper.INSTANCE.mapToUserDTO(userRequest.getExecutor()))")
+    @Mapping(target = "executor", expression = "java(userRequest.getExecutor() != null ? UserMapper.INSTANCE.mapToUserDTO(userRequest.getExecutor()) : null)")
     UserRequestAdditionalDTO mapToUserRequestAdditionalDTO(UserRequest userRequest);
 }

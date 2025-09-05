@@ -1,6 +1,7 @@
 package com.example.bankcards.repository;
 
 import com.example.bankcards.entity.Card;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,13 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     Page<Card> findByOwnerUsername(String username, Pageable pageable);
 
     Page<Card> findByStatus(Card.Status status, Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query(value =
+            "UPDATE Card c " +
+                    "SET c.status = :newStatus " +
+                    "WHERE c.status <> :oldStatus AND c.expirationDate < CURRENT_TIMESTAMP")
+    int expireCards(@Param("newStatus") Card.Status newStatus,
+                    @Param("oldStatus") Card.Status oldStatus);
 }
