@@ -37,6 +37,7 @@ public class CardServiceImpl implements CardService {
 
     private final CardRepository repository;
     private final UserService userService;
+    private final CardDeleteService deleteService;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     @PersistenceContext
     private EntityManager entityManager;
@@ -98,9 +99,16 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public void deleteCard(long cardId) {
-// удалять карту если по ней не было операций
-
+    public boolean deleteCard(long cardId) {
+        logger.info("Запущен метод deleteCard из CardService");
+        if (!userService.getCurrentUser().getRole().equals(User.Role.ADMIN)) {
+            throw new AccessDeniedException("Доступ запрещен");
+        }
+        if (deleteService.canBeDeleted(cardId)) {
+            repository.deleteById(cardId);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -133,7 +141,6 @@ public class CardServiceImpl implements CardService {
         return List.of();
     }
 
-    // TODO сделать корректную обработку EntityNotFoundException
     @Override
     public Card getById(Long id) {
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Карта id " + id + " отсутствует в базе данных."));
@@ -155,7 +162,7 @@ public class CardServiceImpl implements CardService {
         logger.info("Запущен метод expireCard из CardService");
         User currentUser = userService.getCurrentUser();
         Card cardFromBD = getById(id);
-        if (currentUser.getRole().equals(User.Role.ADMIN)) {
+        if (!currentUser.getRole().equals(User.Role.ADMIN)) {
             throw new AccessDeniedException("Доступ запрещен");
         }
         if (cardFromBD.getStatus() != Card.Status.EXPIRED) {
@@ -245,18 +252,4 @@ public class CardServiceImpl implements CardService {
         return false;
     }
 }
-
-
-// TODO тут должны быть методы:
-//  + создание карты с нулевым балансом
-//  - получение информации о карте
-//  - изменение реквизитов карты (наверное, разрешить менять только описание и дату истечения срока карты)
-//  - блокировки карты
-//  - разблокировки карты
-//  - удаления карты (только при отсутствии денежных операций по ней)
-//  Хранить все изменения по карте, включая создание и изменение параметров?
-//  Зачем нужна таблица с картами, если карту можно воссоздать по операциям?
-//  Может лучше хранить операции и по составному ключу (cardId и operationId) получать последнее состояние карты?
-//  Как организовать транзакции? Может ли пользователь уйти в минус?
-
 

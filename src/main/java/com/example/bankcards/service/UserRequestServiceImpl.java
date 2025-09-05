@@ -49,13 +49,17 @@ public class UserRequestServiceImpl implements UserRequestService {
 
     @Override
     public UserRequest getById(Long id) {
+        logger.info("Запущен метод getById из UserRequestService");
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Запрос id " + id + " не найден"));
     }
 
     @Override
     public Page<UserRequest> getByUsername(String username, Pageable pageable) {
-        return null;
-// Позволить человеку получать свои запросы?
+        if(userService.isAdminOrCurrentUser(username)){
+            long id = userService.getByUsername(username).getId();
+            return repository.findByInitiatorId(id, pageable);
+        }
+        return Page.empty();
     }
 
     @Override

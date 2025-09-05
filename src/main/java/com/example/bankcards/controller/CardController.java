@@ -95,4 +95,10 @@ public class CardController {
         return ResponseEntity.ok(mapper.mapToCardDTO(cardService.prolongCard(cardId, days)));
     }
 
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Boolean> deleteCard(@RequestParam(name = "cardId") long cardId){
+        return ResponseEntity.ok(cardService.deleteCard(cardId));
+    }
+
 }

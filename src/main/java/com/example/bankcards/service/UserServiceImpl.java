@@ -3,18 +3,22 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.SignUpRequest;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.AlreadyExistsException;
-import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +59,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User getByUsername(String username) {
         logger.info("Запущен метод getByUsername из UserService");
+        if (!isAdminOrCurrentUser(username)) {
+            throw new AccessDeniedException("Неверное имя или доступ запрещен");
+        }
 //        Hibernate.initialize(user.getRole());
 //        Hibernate.initialize(user.getCards());
         return repository.findByUsername(username)
@@ -69,20 +76,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
 
     /**
-     * Получение текущего пользователя
+     * Получение текущего пользователя на основе контекста Spring Security
      *
      * @return текущий пользователь
      */
     @Override
     public User getCurrentUser() {
-        // Получение имени пользователя из контекста Spring Security
         logger.info("Запущен метод getCurrentUser из UserService");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return getByUsername(username);
+        return repository.findByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователь " + username + " не найден"));
+    }
+
+    @Override
+    public boolean isAdminOrCurrentUser(String username) {
+        User currentUser = getCurrentUser();
+        return (currentUser.getRole().equals(User.Role.ADMIN) || currentUser.getUsername().equals(username));
+    }
+
+    @Override
+    public Page<User> getAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
 }

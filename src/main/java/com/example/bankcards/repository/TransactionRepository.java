@@ -3,5 +3,6 @@ package com.example.bankcards.repository;
 import com.example.bankcards.entity.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TransactionRepositoty extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+    boolean existsByFromCardIdOrToCardId(Long fromCardId, Long toCardId);
 }

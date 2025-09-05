@@ -1,8 +1,8 @@
 package com.example.bankcards.security;
 
 import com.example.bankcards.entity.User;
-import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,9 +26,9 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws EntityNotFoundException {
         logger.info("Запущен метод loadUserByUsername из UserDetailsService");
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Пользователь " + username + " не найден"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("Пользователь " + username + " не найден"));
         return new CustomUserDetails(user);
     }
 }

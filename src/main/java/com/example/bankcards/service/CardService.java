@@ -2,6 +2,7 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardCreateDTO;
 import com.example.bankcards.entity.Card;
+import com.example.bankcards.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,7 +19,11 @@ public interface CardService {
 
     boolean activateCard(long cardId);
 
-    void deleteCard(long cardId);
+    /**
+     * Удаляет карту с {@link Card} id=cardId если по карте не было операций {@link Transaction}
+     * @return результат удаления
+     */
+    boolean deleteCard(long cardId);
 
     Page<Card> getAll(Pageable pageable);
 

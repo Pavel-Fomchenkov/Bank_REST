@@ -2,7 +2,7 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.TransactionDTO;
 import com.example.bankcards.entity.Transaction;
-import com.example.bankcards.repository.TransactionRepositoty;
+import com.example.bankcards.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.time.Instant;
 public class TransactionServiceImpl implements TransactionService {
     private final CardService cardService;
     private final UserService userService;
-    private final TransactionRepositoty repositoty;
+    private final TransactionRepository repositoty;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
