@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id " + id + " не найден"));
     }
 
     /**

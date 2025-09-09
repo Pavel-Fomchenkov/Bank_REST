@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 
-// TODO переделать на Page, сделать обработку ошибок
-
 @RestController
 @RequestMapping("/request")
 @RequiredArgsConstructor
