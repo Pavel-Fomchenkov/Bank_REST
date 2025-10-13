@@ -17,6 +17,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO нужно придумать как создать первого админа
+//  реализовать смену роли
+//  реализовать смену пароля
+//  Есть нереализованные методы
+
+
 @Service
 @RequiredArgsConstructor
 public class UserRequestServiceImpl implements UserRequestService {
@@ -69,7 +75,6 @@ public class UserRequestServiceImpl implements UserRequestService {
 
     @Override
     public UserRequest executeRequest(UserRequestDTO requestDTO, UserRequest.Result result) {
-
         return null;
     }
 

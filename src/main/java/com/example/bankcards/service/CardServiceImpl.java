@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,6 @@ public class CardServiceImpl implements CardService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     @PersistenceContext
     private EntityManager entityManager;
-
 
     /**
      * Запускается при старте приложения.
@@ -89,7 +89,13 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public boolean blockCard(long cardId) {
-        return repository.changeStatus(cardId, Card.Status.BLOCKED) > 0;
+        logger.info("Запущен метод blockCard из CardService c cardId {}", cardId);
+        boolean success = repository.changeStatus(cardId, Card.Status.BLOCKED) > 0;
+        if(success){
+            Optional<Card> optCard = repository.findById(cardId);
+            optCard.ifPresent(card -> entityManager.refresh(card)); // Обновляем кэш Hibernate
+        }
+        return success;
     }
 
     @Override

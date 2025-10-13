@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +53,6 @@ public class UserServiceImpl implements UserService {
      *
      * @return пользователь
      */
-    // TODO убрать закомментированные строки, если и так все работает
     @Override
     @Transactional
     public User getByUsername(String username) {
@@ -62,8 +60,6 @@ public class UserServiceImpl implements UserService {
         if (!isAdminOrCurrentUser(username)) {
             throw new AccessDeniedException("Неверное имя или доступ запрещен");
         }
-//        Hibernate.initialize(user.getRole());
-//        Hibernate.initialize(user.getCards());
         return repository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
     }
@@ -75,6 +71,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getById(Long id) {
+        if(!getCurrentUser().getRole().equals(User.Role.ADMIN)){
+            throw new AccessDeniedException("Доступ ограничен");
+        }
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с id " + id + " не найден"));
     }

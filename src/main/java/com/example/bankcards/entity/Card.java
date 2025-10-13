@@ -58,4 +58,19 @@ public class Card {
         EXPIRED
     }
 
+    @Override
+    public String toString() {
+        return "Card{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", numberEncrypted='" + numberEncrypted + '\'' +
+                ", numberMasked='" + numberMasked + '\'' +
+                ", owner=" + owner +
+                ", entryDate=" + entryDate +
+                ", expirationDate=" + expirationDate +
+                ", status=" + status +
+                ", creditLimit=" + creditLimit +
+                ", balance=" + balance +
+                '}';
+    }
 }

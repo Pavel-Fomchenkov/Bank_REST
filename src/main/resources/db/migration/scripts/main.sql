@@ -57,4 +57,3 @@ CREATE TABLE IF NOT EXISTS public.user_requests
   executor_id BIGINT,
   result_comments character varying(100)
 );
-
