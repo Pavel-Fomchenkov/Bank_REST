@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      * <p>
      * Нужен для Spring Security
      *
-     * @return пользователь
+     * @return {@link com.example.bankcards.security.CustomUserDetails}
      */
     @Override
     @Transactional

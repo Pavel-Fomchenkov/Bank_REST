@@ -95,6 +95,17 @@
             <version>1.6.3</version>
             <scope>provided</scope>
         </dependency>
+        <dependency> <!-- Валидация полей бинов с помощью аннотаций -->
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>9.0.1.Final</version>
+        </dependency>
+        <!-- Нужен для hibernate-validator -->
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.6.1.Final</version>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>

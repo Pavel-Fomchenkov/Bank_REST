@@ -16,21 +16,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +42,9 @@ public class CardServiceImpl implements CardService {
     private final UserService userService;
     private final CardDeleteService deleteService;
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PasswordEncoder encoder;
     @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     /**
      * Запускается при старте приложения.
@@ -88,19 +91,26 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public boolean blockCard(long cardId) {
-        logger.info("Запущен метод blockCard из CardService c cardId {}", cardId);
-        boolean success = repository.changeStatus(cardId, Card.Status.BLOCKED) > 0;
-        if(success){
-            Optional<Card> optCard = repository.findById(cardId);
-            optCard.ifPresent(card -> entityManager.refresh(card)); // Обновляем кэш Hibernate
-        }
-        return success;
+    public boolean changeStatus(long cardId, Card.Status status) {
+        return switch (status) {
+            case ACTIVE -> activateCard(cardId);
+            case BLOCKED -> blockCard(cardId);
+            case EXPIRED -> expireCard(cardId);
+        };
     }
 
-    @Override
     @Transactional
-    public boolean activateCard(long cardId) {
+    private boolean blockCard(long cardId) {
+        logger.info("Запущен метод blockCard из CardService c cardId {}", cardId);
+        return repository.changeStatus(cardId, Card.Status.BLOCKED) > 0;
+    }
+
+    @Transactional
+    private boolean activateCard(long cardId) {
+        logger.info("Запущен метод activateCard из CardService c cardId {}", cardId);
+        if (Instant.now().isAfter(getById(cardId).getExpirationDate())) {
+            return false;
+        }
         return repository.changeStatus(cardId, Card.Status.ACTIVE) > 0;
     }
 
@@ -162,9 +172,8 @@ public class CardServiceImpl implements CardService {
         return count;
     }
 
-    @Override
     @Transactional
-    public boolean expireCard(Long id) {
+    private boolean expireCard(Long id) {
         logger.info("Запущен метод expireCard из CardService");
         User currentUser = userService.getCurrentUser();
         Card cardFromBD = getById(id);
@@ -185,41 +194,35 @@ public class CardServiceImpl implements CardService {
     public Card prolongCard(Long id, int days) {
         logger.info("Запущен метод prolongCard из CardService");
         User currentUser = userService.getCurrentUser();
-        Card cardFromBD = getById(id);
-        if (currentUser.getRole().equals(User.Role.ADMIN)) {
+        if (!currentUser.getRole().equals(User.Role.ADMIN)) {
             throw new AccessDeniedException("Доступ запрещен");
         }
-        LocalDateTime localDateTime = cardFromBD.getExpirationDate().atOffset(ZoneOffset.UTC).toLocalDateTime();
-        localDateTime = localDateTime.plusDays(days);
-        Instant newInstant = localDateTime.toInstant(ZoneOffset.UTC);
-        cardFromBD.setExpirationDate(newInstant);
-        if (cardFromBD.getStatus().equals(Card.Status.EXPIRED) && cardFromBD.getExpirationDate().isAfter(Instant.now())) {
-            cardFromBD.setStatus(Card.Status.ACTIVE);
+        Card card = getById(id);
+        card.setExpirationDate(card.getExpirationDate().plus(days, ChronoUnit.DAYS));
+        if (card.getStatus().equals(Card.Status.EXPIRED) && card.getExpirationDate().isAfter(Instant.now())) {
+            card.setStatus(Card.Status.ACTIVE);
         }
-        return repository.save(cardFromBD);
+        return repository.save(card);
     }
 
-    private static Instant calculateExpiration() {
-        Instant now = Instant.now();
-        LocalDateTime ldtNow = LocalDateTime.ofInstant(now, ZoneOffset.UTC);
-        LocalDateTime futureLDT = ldtNow.plusYears(3);
-        return futureLDT.toInstant(ZoneOffset.UTC);
+    private Instant calculateExpiration() {
+        return Instant.now().plus(3 * 365, ChronoUnit.DAYS);
     }
 
-    private static String encryptNumber(String number) {
+    private String encryptNumber(String number) {
         if (!validateNumber(number)) {
             throw new IllegalArgumentException("Неправильный номер карты или неподходящий формат номера.");
         }
-        return new BCryptPasswordEncoder().encode(number);
+        return encoder.encode(number);
     }
 
     private static boolean validateNumber(String number) {
-        String noSpacesNumber = number.replaceAll("\s+", "");
+        String noSpacesNumber = number.replaceAll(" +", "");
         return noSpacesNumber.length() == 16 && noSpacesNumber.matches("^\\d+$");
     }
 
     private static String maskNumber(String number) {
-        String noSpacesNumber = number.replaceAll("\s+", "");
+        String noSpacesNumber = number.replaceAll(" +", "");
         return noSpacesNumber.substring(noSpacesNumber.length() - 4);
     }
 

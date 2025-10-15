@@ -15,12 +15,9 @@ public interface CardService {
 
     Card createServiceCard(String description);
 
-    boolean blockCard(long cardId);
-
-    boolean activateCard(long cardId);
-
     /**
      * Удаляет карту с {@link Card} id=cardId если по карте не было операций {@link Transaction}
+     *
      * @return результат удаления
      */
     boolean deleteCard(long cardId);
@@ -37,11 +34,12 @@ public interface CardService {
 
     /**
      * Устанавливает статус {@link Card.Status#EXPIRED EXPIRED} для всех карт у которых прошла {@link Card expirationDate}
+     *
      * @return количество скорректированных карт
      */
     int expireCards();
 
-    boolean expireCard(Long id);
+    boolean changeStatus(long cardId, Card.Status status);
 
     Card prolongCard(Long id, int days);
 

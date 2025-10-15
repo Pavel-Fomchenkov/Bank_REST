@@ -1,0 +1,34 @@
+server:
+  port: 8081
+
+ssl:
+  enabled: false # отключаем SSL для простоты тестов
+
+jwt:
+  secret: test-secret-key-for-jwt # заменяем секрет JWT на простой ключ для тестов
+
+spring:
+  application:
+    name: bankcards-tests # добавляем суффикс "-tests" для обозначения окружения тестов
+  datasource:
+    url: jdbc:h2:mem:bankcards_test_db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL # задаём память H2 в качестве тестовой базы данных
+    username: sa # стандартный пользователь H2
+    password: '' # пароль отсутствует
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # создаем и уничтожаем схему перед каждым тестом
+    show-sql: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/migration/changelog-master.yml
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    root: INFO

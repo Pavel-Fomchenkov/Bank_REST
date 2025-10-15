@@ -19,21 +19,21 @@ import java.util.List;
 @RequestMapping("/card")
 public class CardController {
     private final CardMapper mapper;
-    private final CardService cardService;
+    private final CardService service;
 
     @GetMapping(value = "/all", produces = {"application/json"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<CardDTO>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                                 @RequestParam(defaultValue = "10") int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return ResponseEntity.ok(cardService.getAll(pageable).stream()
+        return ResponseEntity.ok(service.getAll(pageable).stream()
                 .map(mapper::mapToCardDTO).toList());
     }
 
 
     @GetMapping(value = "/{id}", produces = {"application/json"})
     public ResponseEntity<CardDTO> getById(@PathVariable long id) {
-        Card card = cardService.getById(id);
+        Card card = service.getById(id);
         return ResponseEntity.ok(mapper.mapToCardDTO(card));
     }
 
@@ -42,7 +42,7 @@ public class CardController {
                                                        @RequestParam(defaultValue = "0") int pageNumber,
                                                        @RequestParam(defaultValue = "10") int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return ResponseEntity.ok(cardService.getByUsername(name, pageable).stream()
+        return ResponseEntity.ok(service.getByUsername(name, pageable).stream()
                 .map(mapper::mapToCardDTO).toList());
     }
 
@@ -52,53 +52,41 @@ public class CardController {
                                                      @RequestParam(defaultValue = "0") int pageNumber,
                                                      @RequestParam(defaultValue = "10") int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return ResponseEntity.ok(cardService.getByStatus(status, pageable).stream()
+        return ResponseEntity.ok(service.getByStatus(status, pageable).stream()
                 .map(mapper::mapToCardDTO).toList());
     }
 
     @PostMapping("/create/{ownerId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CardDTO> createCard(@PathVariable(name = "ownerId") long ownerId, @RequestBody CardCreateDTO cardCreateDTO) {
-        Card newCard = cardService.create(ownerId, cardCreateDTO);
+        Card newCard = service.create(ownerId, cardCreateDTO);
         return ResponseEntity.ok(mapper.mapToCardDTO(newCard));
     }
 
     @PostMapping("/service")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CardDTO> createServiceCard(@RequestParam(name = "description") String description) {
-        Card newCard = cardService.createServiceCard(description);
+        Card newCard = service.createServiceCard(description);
         return ResponseEntity.ok(mapper.mapToCardDTO(newCard));
     }
 
-    @PatchMapping("/block")
+    @PatchMapping("/status")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Boolean> blockCard(@RequestParam(name = "cardId") long cardId) {
-        return ResponseEntity.ok(cardService.blockCard(cardId));
-    }
-
-    @PatchMapping("/activate")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Boolean> activateCard(@RequestParam(name = "cardId") long cardId) {
-        return ResponseEntity.ok(cardService.activateCard(cardId));
-    }
-
-    @PatchMapping("/expire")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Boolean> expireCard(@RequestParam(name = "cardId") long cardId) {
-        return ResponseEntity.ok(cardService.expireCard(cardId));
+    public ResponseEntity<Boolean> changeStatus(@RequestParam(name = "cardId") long cardId, Card.Status status) {
+        return ResponseEntity.ok(service.changeStatus(cardId, status));
     }
 
     @PatchMapping("/prolong")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CardDTO> prolongCard(@RequestParam(name = "cardId") long cardId,
                                                @RequestParam(name = "days") int days) {
-        return ResponseEntity.ok(mapper.mapToCardDTO(cardService.prolongCard(cardId, days)));
+        return ResponseEntity.ok(mapper.mapToCardDTO(service.prolongCard(cardId, days)));
     }
 
     @DeleteMapping("/delete")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Boolean> deleteCard(@RequestParam(name = "cardId") long cardId){
-        return ResponseEntity.ok(cardService.deleteCard(cardId));
+        return ResponseEntity.ok(service.deleteCard(cardId));
     }
 
 }
