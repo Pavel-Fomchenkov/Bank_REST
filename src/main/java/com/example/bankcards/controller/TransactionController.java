@@ -1,5 +1,6 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.TransactionCreateDTO;
 import com.example.bankcards.dto.TransactionDTO;
 import com.example.bankcards.service.TransactionService;
 import com.example.bankcards.util.TransactionMapper;
@@ -18,7 +19,7 @@ public class TransactionController {
     private final TransactionService service;
 
     @PostMapping()
-    public ResponseEntity<TransactionDTO> makeTransaction(TransactionDTO transactionDTO) {
-        return ResponseEntity.ok(mapper.mapToTransactionDTO(service.makeTransaction(transactionDTO)));
+    public ResponseEntity<TransactionDTO> makeTransaction(TransactionCreateDTO transactionCreateDTO) {
+        return ResponseEntity.ok(mapper.mapToTransactionDTO(service.makeTransaction(transactionCreateDTO)));
     }
 }

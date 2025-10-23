@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
 
@@ -18,8 +19,8 @@ public class TransactionCreateDTO {
     @Schema(description = "Сумма перевода")
     @NotBlank(message = "Положительное число, максимум 2 знака после запятой")
     @Positive
-    private BigDecimal sum;
+    private BigDecimal amount;
     @Schema(description = "Назначение платежа")
-    @NotBlank(message = "Описание транзакции")
+    @Length(min = 8, max = 255, message = "Описание длиной от 8 до 255 символов")
     private String description;
 }

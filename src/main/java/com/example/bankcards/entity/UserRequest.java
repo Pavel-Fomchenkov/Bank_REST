@@ -46,11 +46,12 @@ public class UserRequest {
     @Column(name = "comments", nullable = false)
     private String comment;
 
-    @Getter
+    @Setter
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "executor_id", nullable = true)
     private User executor;
 
+    @Setter
     @Column(name = "result_comments", nullable = true)
     private String resultComment;
 

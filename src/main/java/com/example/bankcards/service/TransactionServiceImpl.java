@@ -1,6 +1,6 @@
 package com.example.bankcards.service;
 
-import com.example.bankcards.dto.TransactionDTO;
+import com.example.bankcards.dto.TransactionCreateDTO;
 import com.example.bankcards.entity.Transaction;
 import com.example.bankcards.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,21 +20,21 @@ public class TransactionServiceImpl implements TransactionService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public Transaction makeTransaction(TransactionDTO transactionDTO) {
+    public Transaction makeTransaction(TransactionCreateDTO transactionCreateDTO) {
         logger.info("Запущен метод makeTransaction из UserService");
-        BigDecimal amount = new BigDecimal(transactionDTO.getAmount());
+        BigDecimal amount = transactionCreateDTO.getAmount();
         Transaction transaction = repositoty.save(
                 Transaction.builder()
-                        .fromCardId(transactionDTO.getFromCardId())
-                        .toCardId(transactionDTO.getToCardId())
+                        .fromCardId(transactionCreateDTO.getFromCardId())
+                        .toCardId(transactionCreateDTO.getToCardId())
                         .amount(amount)
                         .initiatorId(userService.getCurrentUser().getId())
                         .transactionDate(Instant.now())
-                        .description(transactionDTO.getDescription())
+                        .description(transactionCreateDTO.getDescription())
                         .status(Transaction.Status.INCOMPLETE)
                         .build()
         );
-        if (cardService.executeTransaction(transactionDTO.getFromCardId(), transactionDTO.getToCardId(), amount)) {
+        if (cardService.executeTransaction(transactionCreateDTO.getFromCardId(), transactionCreateDTO.getToCardId(), amount)) {
             transaction.setStatus(Transaction.Status.DONE);
             repositoty.save(transaction);
         }
