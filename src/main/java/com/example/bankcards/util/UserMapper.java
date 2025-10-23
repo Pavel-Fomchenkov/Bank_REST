@@ -1,5 +1,6 @@
 package com.example.bankcards.util;
 
+import com.example.bankcards.dto.ChangePasswordDTO;
 import com.example.bankcards.dto.UserDTO;
 import com.example.bankcards.entity.User;
 import org.mapstruct.Mapper;

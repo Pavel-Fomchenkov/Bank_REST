@@ -1,17 +1,16 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.ChangePasswordDTO;
 import com.example.bankcards.dto.UserDTO;
 import com.example.bankcards.service.UserService;
 import com.example.bankcards.util.UserMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/name", produces = {"application/json"})
-    public ResponseEntity<UserDTO> getByUsername(String username){
+    public ResponseEntity<UserDTO> getByUsername(String username) {
         return ResponseEntity.ok(mapper.mapToUserDTO(service.getByUsername(username)));
     }
 
@@ -40,5 +39,18 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserDTO> getById(Long id) {
         return ResponseEntity.ok(mapper.mapToUserDTO(service.getById(id)));
+    }
+
+    @PatchMapping(value = "/changePassword", produces = {"application/json"})
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO passwordDTO) {
+        service.changeOwnPassword(passwordDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(value = "/changePassword/{id}", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> changePassword(@PathVariable(name = "id") Long id, @Valid @RequestBody ChangePasswordDTO passwordDTO) {
+        service.changePassword(id, passwordDTO);
+        return ResponseEntity.ok().build();
     }
 }

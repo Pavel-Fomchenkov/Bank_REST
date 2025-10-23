@@ -1,5 +1,6 @@
 package com.example.bankcards.service;
 
+import com.example.bankcards.dto.ChangePasswordDTO;
 import com.example.bankcards.dto.SignUpRequest;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.AlreadyExistsException;
@@ -11,11 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 
@@ -71,7 +74,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getById(Long id) {
-        if(!getCurrentUser().getRole().equals(User.Role.ADMIN)){
+        if (!getCurrentUser().getRole().equals(User.Role.ADMIN)) {
             throw new AccessDeniedException("Доступ ограничен");
         }
         return repository.findById(id)
@@ -92,7 +95,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isAdminOrCurrentUser(String username) {
+    public Boolean isAdminOrCurrentUser(String username) {
         User currentUser = getCurrentUser();
         return (currentUser.getRole().equals(User.Role.ADMIN) || currentUser.getUsername().equals(username));
     }
@@ -102,4 +105,27 @@ public class UserServiceImpl implements UserService {
         return repository.findAll(pageable);
     }
 
+    @Override
+    public void changeOwnPassword(ChangePasswordDTO passwordDTO) {
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getNewPasswordConfirmed())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Новый и подтвержденный пароли не совпадают.");
+        }
+        User currentUser = getCurrentUser();
+        if (!passwordEncoder.matches(passwordDTO.getOldPassword(), currentUser.getPasswordEncrypted())) {
+            throw new AccessDeniedException("Некорректный пароль");
+        }
+        User userFromDb = getByUsername(currentUser.getUsername());
+        userFromDb.setPasswordEncrypted(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        repository.save(userFromDb);
+    }
+
+    @Override
+    public void changePassword(Long id, ChangePasswordDTO passwordDTO) {
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getNewPasswordConfirmed())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Новый и подтвержденный пароли не совпадают.");
+        }
+        User userFromDb = getById(id);
+        userFromDb.setPasswordEncrypted(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        repository.save(userFromDb);
+    }
 }

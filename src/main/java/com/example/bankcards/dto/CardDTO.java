@@ -17,20 +17,15 @@ public class CardDTO {
 
     private UserDTO owner;
 
-    @Column(name = "entry_date")
     private Instant entryDate;
 
-    @Column(name = "expiration_date")
     private Instant expirationDate;
 
-    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Card.Status status;
 
-    @Column(name = "creditLimit")
     private String creditLimit;
 
-    @Column(name = "balance")
     private String balance;
 
 

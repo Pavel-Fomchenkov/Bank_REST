@@ -1,11 +1,10 @@
 package com.example.bankcards.service;
 
+import com.example.bankcards.dto.ChangePasswordDTO;
 import com.example.bankcards.dto.SignUpRequest;
 import com.example.bankcards.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.Arrays;
 
 public interface UserService {
     User create(SignUpRequest request);
@@ -16,7 +15,11 @@ public interface UserService {
 
     User getCurrentUser();
 
-    boolean isAdminOrCurrentUser(String username);
+    Boolean isAdminOrCurrentUser(String username);
 
     Page<User> getAll(Pageable pageable);
+
+    void changeOwnPassword(ChangePasswordDTO passwordDTO);
+
+    void changePassword(Long id, ChangePasswordDTO passwordDTO);
 }

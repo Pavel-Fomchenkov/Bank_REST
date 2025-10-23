@@ -27,6 +27,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Setter
     @Column(name = "password_encrypted", nullable = false)
     private String passwordEncrypted;
 

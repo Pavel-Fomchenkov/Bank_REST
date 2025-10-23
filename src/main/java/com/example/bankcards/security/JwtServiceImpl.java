@@ -59,7 +59,10 @@ public class JwtServiceImpl implements JwtService {
      * @param userDetails данные пользователя
      * @return true, если токен валиден
      */
-    // TODO проверка токена не запускается при залогинивании
+    //  TODO При этом проверка токена проверяется в методе doFilterInternal и требует UserDetails,
+    //   что вероятно приводит к запросам в базу данных при каждой операции пользователя
+    //   Нормально ли это, перегружает базу данных или обеспечивает безопасность?
+
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         logger.info("Запущен метод isTokenValid из JwtService");

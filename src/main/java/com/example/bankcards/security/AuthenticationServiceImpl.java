@@ -45,10 +45,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         if (!passwordEncoder.matches(request.getPassword(), userDetails.getPassword())) {
-            if (!passwordEncoder.matches(request.getPassword(), userDetails.getPassword())) {
-                logger.error("Неправильный пароль для пользователя {}", request.getUsername());
-                throw new WrongPasswordException("Неправильный пароль для пользователя " + request.getUsername());
-            }
+            logger.error("Неправильный пароль для пользователя {}", request.getUsername());
+            throw new WrongPasswordException("Неправильный пароль для пользователя " + request.getUsername());
         }
         String jwt = jwtService.generateToken(userDetails);
         return new JwtAuthenticationResponse(jwt);
