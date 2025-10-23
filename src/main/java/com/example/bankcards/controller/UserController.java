@@ -2,6 +2,7 @@ package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.ChangePasswordDTO;
 import com.example.bankcards.dto.UserDTO;
+import com.example.bankcards.entity.User;
 import com.example.bankcards.service.UserService;
 import com.example.bankcards.util.UserMapper;
 import jakarta.validation.Valid;
@@ -49,8 +50,17 @@ public class UserController {
 
     @PatchMapping(value = "/changePassword/{id}", produces = {"application/json"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> changePassword(@PathVariable(name = "id") Long id, @Valid @RequestBody ChangePasswordDTO passwordDTO) {
+    public ResponseEntity<Void> changePassword(@PathVariable(name = "id") Long id,
+                                               @Valid @RequestBody ChangePasswordDTO passwordDTO) {
         service.changePassword(id, passwordDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(value = "/changeRole/{id}", produces = {"application/json"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> changeRole(@PathVariable(name = "id") Long id,
+                                           @RequestParam(name = "role") User.Role role) {
+        service.changeRole(id, role);
         return ResponseEntity.ok().build();
     }
 }

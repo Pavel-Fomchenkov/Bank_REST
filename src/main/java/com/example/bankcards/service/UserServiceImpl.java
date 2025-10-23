@@ -128,4 +128,11 @@ public class UserServiceImpl implements UserService {
         userFromDb.setPasswordEncrypted(passwordEncoder.encode(passwordDTO.getNewPassword()));
         repository.save(userFromDb);
     }
+
+    @Override
+    public void changeRole(Long id, User.Role role) {
+        User userFromDb = getById(id);
+        userFromDb.setRole(role);
+        repository.save(userFromDb);
+    }
 }

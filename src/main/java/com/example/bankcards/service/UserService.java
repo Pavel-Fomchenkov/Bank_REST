@@ -22,4 +22,6 @@ public interface UserService {
     void changeOwnPassword(ChangePasswordDTO passwordDTO);
 
     void changePassword(Long id, ChangePasswordDTO passwordDTO);
+
+    void changeRole(Long id, User.Role role);
 }
