@@ -13,7 +13,7 @@ public interface UserRequestMapper {
 
     @Named("mapToUserRequestDTO")
     @Mapping(target = "initiatorId", source = "initiator.id")
-    @Mapping(target = "cardId", source = "card.id")
+    @Mapping(target = "cardIdOwnerIdDTO", expression = "java(CardMapper.INSTANCE.mapToCardIdOwnerIdDTO(userRequest.getCard()))")
     @Mapping(target = "executorId", expression = "java(userRequest.getExecutor() != null ? userRequest.getExecutor().getId() : null)")
     UserRequestDTO mapToUserRequestDTO(UserRequest userRequest);
 

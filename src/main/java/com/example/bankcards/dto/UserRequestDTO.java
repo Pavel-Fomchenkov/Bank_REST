@@ -9,7 +9,7 @@ import java.time.Instant;
 public class UserRequestDTO {
     private Long id;
     private Long initiatorId;
-    private Long cardId;
+    private CardIdOwnerIdDTO cardIdOwnerIdDTO;
     private Instant entryDate;
     private Instant resultDate;
     private UserRequest.Type type;

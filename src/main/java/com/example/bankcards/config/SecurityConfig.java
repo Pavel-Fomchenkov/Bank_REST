@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // TODO настроить фильтр
-
+    // TODO logout отправляет на /auth/sign-in с ответом 403 forbidden
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Запущен метод securityFilterChain из SecurityConfig");
@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/card/status").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .logout(logout -> logout  // TODO проверить logout и нужен ли он вообще?
+                .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/auth/sign-in"))
                 .sessionManagement(session -> session

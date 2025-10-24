@@ -25,8 +25,6 @@ public class UserRequestController {
     private final UserRequestService service;
     private final UserRequestMapper mapper;
 
-    // TODO нужно сделать чтобы получение из базы запросов пользователя возвращало данные о пользователе карты
-
     @PostMapping("/send")
     public ResponseEntity<UserRequestDTO> createRequest(UserRequestCreateDTO request) {
         return ResponseEntity.ok(mapper.mapToUserRequestDTO(service.createRequest(request)));
@@ -72,7 +70,7 @@ public class UserRequestController {
     public ResponseEntity<UserRequestAdditionalDTO> executeRequest(@RequestBody UserRequestDTO requestDTO,
                                                                    @RequestParam(name = "result") UserRequest.Result result,
                                                                    @Length(min = 10, max = 100, message = "Длина комментария от 10 до 100 символов")
-                                                                       @RequestParam(name = "comment") String comment) {
+                                                                   @RequestParam(name = "comment") String comment) {
         return ResponseEntity.ok(mapper.mapToUserRequestAdditionalDTO(service.executeRequest(requestDTO, result, comment)));
     }
 }

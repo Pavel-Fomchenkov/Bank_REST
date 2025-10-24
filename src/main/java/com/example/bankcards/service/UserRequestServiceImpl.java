@@ -21,11 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 // TODO нужно придумать как создать первого админа
-//  реализовать смену роли
-//  реализовать смену пароля
 
-// TODO данные в базе хранятся в формате OffsetDateTime
-
+// Данные в базе хранятся в формате OffsetDateTime
 
 @Service
 @RequiredArgsConstructor

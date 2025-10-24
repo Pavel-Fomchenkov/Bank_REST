@@ -47,7 +47,6 @@ public class CardServiceImpl implements CardService {
      * Устанавливает статус {@link Card.Status#EXPIRED EXPIRED} для всех карт у которых прошла {@link Card expirationDate}
      */
     //TODO потенциально создаст race condition при запуске в кластере
-    // Нужно переделать
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady(ApplicationReadyEvent event) {
         logger.info("Выполняем expireCards при старте приложения");

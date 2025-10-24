@@ -1,6 +1,7 @@
 package com.example.bankcards.util;
 
 import com.example.bankcards.dto.CardDTO;
+import com.example.bankcards.dto.CardIdOwnerIdDTO;
 import com.example.bankcards.entity.Card;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,4 +20,8 @@ public interface CardMapper {
     @Mapping(target = "creditLimit", expression = "java(card.getCreditLimit().toString())")
     @Mapping(target = "balance", expression = "java(card.getBalance().toString())")
     CardDTO mapToCardDTO(Card card);
+
+    @Named("mapToCardIdOwnerIdDTO")
+    @Mapping(target = "ownerId", expression = "java(card.getOwner().getId())")
+    CardIdOwnerIdDTO mapToCardIdOwnerIdDTO(Card card);
 }
